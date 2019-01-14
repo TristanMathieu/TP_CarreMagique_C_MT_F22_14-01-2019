@@ -1,0 +1,143 @@
+Algorythme carré magique
+
+// --- enregistrement ---	
+
+TYPE coord ENREGISTREMENT
+	x:ENTIER
+	y:ENTIER
+FINENREGISTREMENT
+
+
+// --- constantes ---
+
+CONST
+	TAILLE<-5:ENTIER
+
+
+// --- sous PCD/FCT dans pcd_avancer
+
+PROCEDURE pcd_av_g (tab, coord_a)
+	coord_a.x<-coord_a.x+1
+	SI coord_a.x=6 ALORS
+		coord_a.x<-1
+	FINSI
+	coord_a.y<-coord_a.y-1
+	SI coord_a.y=0 ALORS
+		coord_a.y<-5
+	FINSI
+FINPROCEDURE
+
+
+FONCTION fct_corriger (tab, coord_a):BOOLEEN
+VAR
+	remplie:BOOLEEN
+
+DEBUT
+	SI tab[coord_a.x,coord_a.y] > 0 ALORS
+		remplie<-TRUE
+	SINON
+		remplie<-FALSE
+	FINSI
+	fct_rech_vide<-remplie
+FINFONCTION
+
+
+PROCEDURE pcd_av_d (tab, coord_a)
+	coord_a.x<-coord_a.x-1
+	SI coord_a.x=0 ALORS
+		coord_a.x<-5
+	FINSI
+	coord_a.y<-coord_a.y-1
+	SI coord_a.y=0 ALORS
+		coord_a.y<-5
+	FINSI
+FINPROCEDURE
+
+
+
+// --- PCD/FCT ---
+
+PROCEDURE pcd_initialiser (tab) //notre procedure qui initialisera le tableau et le premier 1.
+VAR
+	cpt:coord
+
+DEBUT
+	coord_a.x<-3
+	coord_a.y<-2
+	POUR cpt.y DE 1 A TAILLE FAIRE
+		POUR cpt.x DE 1 A TAILLE FAIRE
+			tab[cpt.x,cpt.y]<-0
+		FINPOUR 
+	FINPOUR
+	tab[coord_a.x..coord_a.y]<-1 //collone 3, ligne 2
+FINPROCEDURE
+
+
+PROCEDURE pcd_avancer (tab, coord_a) //permetra d'avancer dans le tableau
+//PRINCIPE :
+//L'idée générale de cette procedure : On avancera a gauche dans tout les cas, puis on testera notre case. Si elle est pleine, 
+//alors on ira a droite, dans ce cas il y aura un total de 2 déplacement. Cette methode permetra d'avoir necessairement un
+//remplissage par loop dans notre POUR.
+
+
+DEBUT
+	pcd_av_g (tab:TABLEAU DE ENTIER, var coord_a:coord)
+	SI fct_corriger (tab:TABLEAU DE ENTIER, coord_a:coord) ALORS
+		pcd_av_d (tab:TABLEAU DE ENTIER, var coord_a:coord)
+	FINSI
+FINPROCEDURE
+
+
+FONCTION fct_rech_vide (tab, coord_a):BOOLEEN //sert de test booleen si oui ou non on a la place pour placer un nb
+VAR
+	vide:BOOLEEN
+
+DEBUT
+	SI tab[coord_a.x,coord_a.y] = 0 ALORS
+		vide<-TRUE
+	SINON
+		vide<-FALSE
+	FINSI
+	fct_rech_vide<-result
+FINFONCTION
+
+
+PROCEDURE pcd_placer (tab, coord_a, cpt_remp) //pcd pour placer un nb dans notre tableau
+
+DEBUT
+	tab[coord_a.x,coord_a.y]<-cpt_remp
+FINPROCEDURE
+
+
+PROCEDURE pcd_afficher (tab) //procedure finale, permettant un bel affichage du tableau
+VAR
+	cpt:coord
+
+DEBUT
+	POUR cpt.x DE 1 A TAILLE FAIRE
+		POUR cpt.y DE 1 A TAILLE FAIRE
+			ECRIRE tab[cpt.y,cpt.x] & "|"
+		FINPOUR 
+		ECRIRE "---------"//ceci sert de retour à la ligne
+	FINPOUR
+FINPROCEDURE
+
+
+
+// --- programe principale ---
+
+VAR
+	tab:TABLEAU [1..TAILLE,1..TAILLE] DE ENTIER //ici, on initialise le squelette de notre tableau, il fera du 5 x 5.
+	cpt_remp:ENTIER //servira de cpt pour notre pour dans notre prog principale
+	coord_a:coord //permettra de sauvegarder des coordonnés pour placer un nombre
+
+DEBUT
+	pcd_initialiser (var tab:TABLEAU DE ENTIER, var coord_a:coord) //notre procedure qui initialisera le tableau et le premier 1, ainsi que la var coord_a.
+	POUR cpt_remp DE 2 A (TAILLE * TAILLE) FAIRE //il permettra de faire le nb de case total du tableau -1 (le -1 est là pour le 1 déjà initailisé)
+		pcd_avancer (tab:TABLEAU DE ENTIER, var coord_a:coord) //permetra d'avancer dans le tableau
+		SI fct_rech_vide (tab:TABLEAU DE ENTIER, coord_a:coord) ALORS //sert de test booleen si oui ou non on a la place pour placer un nb
+			pcd_placer (var tab:TABLEAU DE ENTIER, coord_a:coord, cpt_remp:ENTIER) //pcd pour placer un nb dans notre tableau
+		FINSI
+	FINPOUR
+	pcd_afficher (tab:TABLEAU DE ENTIER) //procedure finale, permettant un bel affichage du tableau
+FIN
